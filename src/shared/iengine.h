@@ -484,6 +484,7 @@ extern void sendserverinforeply(ucharbuf &p);
 extern bool requestmaster(const char *req);
 extern bool requestmasterf(const char *fmt, ...) PRINTFARGS(1, 2);
 extern bool isdedicatedserver();
+extern const char *getclientcountry(int n, bool nul);
 
 // serverbrowser
 

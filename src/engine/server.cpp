@@ -2,9 +2,11 @@
 // runs dedicated or as client coroutine
 
 #include "engine.h"
+#include "GeoIP.h"
 
 #define LOGSTRLEN 512
 
+GeoIP *gip;
 static FILE *logfile = NULL;
 
 void closelogfile()
@@ -114,6 +116,7 @@ struct client                   // server side version of "dynent" type
     ENetPeer *peer;
     string hostname;
     void *info;
+    string country;
 };
 
 vector<client *> clients;
@@ -189,6 +192,7 @@ void *getclientinfo(int i) { return !clients.inrange(i) || clients[i]->type==ST_
 ENetPeer *getclientpeer(int i) { return clients.inrange(i) && clients[i]->type==ST_TCPIP ? clients[i]->peer : NULL; }
 int getnumclients()        { return clients.length(); }
 uint getclientip(int n)    { return clients.inrange(n) && clients[n]->type==ST_TCPIP ? clients[n]->peer->address.host : 0; }
+const char *getclientcountry(int n, bool nul = false) { return clients.inrange(n) && clients[n]->type==ST_TCPIP ? (clients[n]->country[0] ? clients[n]->country : (nul ? 0 : "Unknown")) : 0;}
 
 void sendpacket(int n, int chan, ENetPacket *packet, int exclude)
 {
@@ -681,7 +685,10 @@ void serverslice(bool dedicated, uint timeout)   // main server update, called f
                 c.peer->data = &c;
                 string hn;
                 copystring(c.hostname, (enet_address_get_host_ip(&c.peer->address, hn, sizeof(hn))==0) ? hn : "unknown");
-                logoutf("client connected (%s)", c.hostname);
+                const char *country = GeoIP_country_name_by_addr(gip, c.hostname);
+                if(country) copystring(c.country, country);
+                else c.country[0] = 0;
+                logoutf("client connected (%s/%s)", c.hostname, getclientcountry(c.num));
                 int reason = server::clientconnect(c.num, c.peer->address.host);
                 if(reason) disconnect_client(c.num, reason);
                 break;
@@ -1078,6 +1085,8 @@ bool setuplistenserver(bool dedicated)
 
 void initserver(bool listen, bool dedicated)
 {
+	gip = GeoIP_open("etc/GeoIP.dat", GEOIP_STANDARD);
+	
     if(dedicated)
     {
 #ifdef WIN32

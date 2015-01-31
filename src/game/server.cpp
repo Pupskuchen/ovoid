@@ -2730,6 +2730,8 @@ namespace server
 
         if(m_demo) setupdemoplayback();
 
+		const char *country = getclientcountry(ci->clientnum, true);
+		if(country) sendservmsgf("\f4%s \f8connected from \f4%s\fr", ci->name, country);
         if(servermotd[0]) sendf(ci->clientnum, 1, "ris", N_SERVMSG, servermotd);
     }
 
