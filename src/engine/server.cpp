@@ -320,14 +320,16 @@ const char *disconnectreason(int reason)
         case DISC_TIMEOUT: return "connection timed out";
         case DISC_OVERFLOW: return "overflow";
         case DISC_PASSWORD: return "invalid password";
+        case DISC_UNNAMED: return "unnamed players not allowed";
         default: return NULL;
     }
 }
 
-void disconnect_client(int n, int reason)
+void disconnect_client(int n, int reason, bool later)
 {
     if(!clients.inrange(n) || clients[n]->type!=ST_TCPIP) return;
-    enet_peer_disconnect(clients[n]->peer, reason);
+    if(!later) enet_peer_disconnect(clients[n]->peer, reason);
+    else enet_peer_disconnect_later(clients[n]->peer, reason);
     server::clientdisconnect(n);
     delclient(clients[n]);
     const char *msg = disconnectreason(reason);
@@ -688,7 +690,7 @@ void serverslice(bool dedicated, uint timeout)   // main server update, called f
                 const char *country = GeoIP_country_name_by_addr(gip, c.hostname);
                 if(country) copystring(c.country, country);
                 else c.country[0] = 0;
-                logoutf("client connected (%s/%s)", c.hostname, getclientcountry(c.num));
+                logoutf("client %d connected (%s/%s)", c.num, c.hostname, getclientcountry(c.num));
                 int reason = server::clientconnect(c.num, c.peer->address.host);
                 if(reason) disconnect_client(c.num, reason);
                 break;
@@ -704,7 +706,7 @@ void serverslice(bool dedicated, uint timeout)   // main server update, called f
             {
                 client *c = (client *)event.peer->data;
                 if(!c) break;
-                logoutf("disconnected client (%s)", c->hostname);
+                logoutf("client %d disconnected (%s)", c->num, c->hostname);
                 server::clientdisconnect(c->num);
                 delclient(c);
                 break;

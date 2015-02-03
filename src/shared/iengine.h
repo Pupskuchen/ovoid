@@ -463,7 +463,7 @@ extern void cleanragdoll(dynent *d);
 
 extern int maxclients;
 
-enum { DISC_NONE = 0, DISC_EOP, DISC_LOCAL, DISC_KICK, DISC_MSGERR, DISC_IPBAN, DISC_PRIVATE, DISC_MAXCLIENTS, DISC_TIMEOUT, DISC_OVERFLOW, DISC_PASSWORD, DISC_NUM };
+enum { DISC_NONE = 0, DISC_EOP, DISC_LOCAL, DISC_KICK, DISC_MSGERR, DISC_IPBAN, DISC_PRIVATE, DISC_MAXCLIENTS, DISC_TIMEOUT, DISC_OVERFLOW, DISC_PASSWORD, DISC_NUM, DISC_UNNAMED };
 
 extern void *getclientinfo(int i);
 extern ENetPeer *getclientpeer(int i);
@@ -476,7 +476,7 @@ extern int getnumclients();
 extern uint getclientip(int n);
 extern void localconnect();
 extern const char *disconnectreason(int reason);
-extern void disconnect_client(int n, int reason);
+extern void disconnect_client(int n, int reason, bool later = false);
 extern void kicknonlocalclients(int reason = DISC_NONE);
 extern bool hasnonlocalclients();
 extern bool haslocalclients();

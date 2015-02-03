@@ -2752,6 +2752,11 @@ namespace server
                     getstring(text, p);
                     filtertext(text, text, false, false, MAXNAMELEN);
                     if(!text[0]) copystring(text, "unnamed");
+                    if(strcmp(text, "unnamed") == 0) {
+						sendf(sender, 1, "ris", N_SERVMSG, "\f3This server does not allow unnamed players.\fr");
+						disconnect_client(sender, DISC_UNNAMED, true);
+						return;
+					}
                     copystring(ci->name, text, MAXNAMELEN+1);
                     ci->playermodel = getint(p);
                     ci->playercolor = getint(p);
