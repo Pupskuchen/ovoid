@@ -880,7 +880,7 @@ static LRESULT CALLBACK handlemessages(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
             switch(lParam)
             {
                 //case WM_MOUSEMOVE:
-                //	break;
+                //    break;
                 case WM_LBUTTONUP:
                 case WM_RBUTTONUP:
                 {
@@ -1087,8 +1087,8 @@ bool setuplistenserver(bool dedicated)
 
 void initserver(bool listen, bool dedicated)
 {
-	gip = GeoIP_open("etc/GeoIP.dat", GEOIP_STANDARD);
-	
+    gip = GeoIP_open("etc/GeoIP.dat", GEOIP_STANDARD);
+
     if(dedicated)
     {
 #ifdef WIN32
